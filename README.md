@@ -20,6 +20,11 @@ _Disclaimer_: I do not provide any support on GitLab itself. I only contribute t
 
 You should also be aware that **Public GitLab** only applies to the lastest [stable](https://github.com/ArthurHoaro/Public-GitLab/) release branch of GitLab. `master` branch on this repo have high chance to be broken.
 
+## Changelog
+
+  * Public GitLab 5.1-stable branch (not supported yet, waiting for official [upgrade note](https://github.com/gitlabhq/gitlabhq/blob/5-1-stable/doc/update/5.0-to-5.1.md))
+  * 12/04/2013: Public GitLab 5.0-stable branch
+
 ## Installation
 
 During the [official intallation](https://github.com/gitlabhq/gitlabhq/blob/5-0-stable/doc/install/installation.md) workflow, **Public GitLab** override part _"6. GitLab - Clone the Source"_. 

@@ -9,7 +9,7 @@ module Gitlab
         :author_name, :author_email, :parent_ids,
         :committer_name, :committer_email
 
-      delegate :parents, :diffs, :tree, :stats, :to_patch,
+      delegate :parents, :tree, :stats, :to_patch,
         to: :raw_commit
 
       def initialize(raw_commit, head = nil)
@@ -25,7 +25,7 @@ module Gitlab
       end
 
       def serialize_keys
-        %w(id authored_date committed_date author_name author_email committer_name committer_email message parent_ids)
+        @serialize_keys ||= %w(id authored_date committed_date author_name author_email committer_name committer_email message parent_ids).map(&:to_sym)
       end
 
       def sha
@@ -96,6 +96,10 @@ module Gitlab
         committed_date
       end
 
+      def diffs
+        raw_commit.diffs.map { |diff| Gitlab::Git::Diff.new(diff) }
+      end
+
       private
 
       def init_from_grit(grit)
@@ -112,8 +116,10 @@ module Gitlab
       end
 
       def init_from_hash(hash)
+        raw_commit = hash.symbolize_keys
+
         serialize_keys.each do |key|
-          send(:"#{key}=", hash[key])
+          send(:"#{key}=", raw_commit[key.to_sym])
         end
       end
     end

@@ -266,13 +266,11 @@ Gitlab::Application.routes.draw do
     resources :labels, only: [:index]
     resources :issues, except: [:destroy] do
       collection do
-        post  :sort
         post  :bulk_update
-        get   :search
       end
     end
 
-    resources :team_members do
+    resources :team_members, except: [:index, :edit] do
       collection do
 
         # Used for import team

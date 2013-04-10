@@ -30,12 +30,12 @@ Spinach.hooks.on_tag("javascript") do
   ::Capybara.current_driver = ::Capybara.javascript_driver
 end
 Capybara.default_wait_time = 10
-
+Capybara.ignore_hidden_elements = false
 
 DatabaseCleaner.strategy = :truncation
 
 Spinach.hooks.before_scenario do
-  TestEnv.init
+  TestEnv.init(mailer: false)
 
   DatabaseCleaner.start
 end

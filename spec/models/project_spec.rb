@@ -39,7 +39,6 @@ describe Project do
     it { should have_many(:snippets).dependent(:destroy) }
     it { should have_many(:deploy_keys).dependent(:destroy) }
     it { should have_many(:hooks).dependent(:destroy) }
-    it { should have_many(:wikis).dependent(:destroy) }
     it { should have_many(:protected_branches).dependent(:destroy) }
   end
 
@@ -97,6 +96,7 @@ describe Project do
   end
 
   describe "last_activity methods" do
+    before { enable_observers }
     let(:project)    { create(:project) }
     let(:last_event) { double(created_at: Time.now) }
 
@@ -109,8 +109,8 @@ describe Project do
 
     describe 'last_activity_date' do
       it 'returns the creation date of the project\'s last event if present' do
-        project.stub(last_event: last_event)
-        project.last_activity_date.should == last_event.created_at
+        last_activity_event = create(:event, project: project)
+        project.last_activity_at.to_i.should == last_event.created_at.to_i
       end
 
       it 'returns the project\'s last update date if it has no events' do

@@ -68,10 +68,10 @@ module Gitlab
       end
 
       def commits(ref, path = nil, limit = nil, offset = nil)
-        if path
-          repo.log(ref, path, max_count: limit, skip: offset)
+        if path.present?
+          repo.log(ref, path, max_count: limit, skip: offset, follow: true)
         elsif limit && offset
-          repo.commits(ref, limit, offset)
+          repo.commits(ref, limit.to_i, offset.to_i)
         else
           repo.commits(ref)
         end.map{ |c| decorate_commit(c) }
@@ -189,6 +189,17 @@ module Gitlab
 
       def cache_key(type)
         "#{type}:#{path_with_namespace}"
+      end
+
+      def diffs_between(source_branch, target_branch)
+        # Only show what is new in the source branch compared to the target branch, not the other way around.
+        # The linex below with merge_base is equivalent to diff with three dots (git diff branch1...branch2)
+        # From the git documentation: "git diff A...B" is equivalent to "git diff $(git-merge-base A B) B"
+        common_commit = repo.git.native(:merge_base, {}, [target_branch, source_branch]).strip
+        repo.diff(common_commit, source_branch).map { |diff| Gitlab::Git::Diff.new(diff) }
+
+      rescue Grit::Git::GitTimeout
+        [Gitlab::Git::Diff::BROKEN_DIFF]
       end
 
       protected
