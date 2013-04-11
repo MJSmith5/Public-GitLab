@@ -1,163 +1,89 @@
-## GitLab: self hosted Git management software
+# Public GitLab
 
-![logo](https://raw.github.com/gitlabhq/gitlabhq/master/public/gitlab_logo.png)
+> **Warning !** You should be on the lastest [stable branch](https://github.com/ArthurHoaro/Public-GitLab/) instead of master branch.
 
-### GitLab allows you to
- * keep your code secure on your own server
- * manage repositories, users and access permissions
- * communicate through issues, line-comments and wiki pages
- * perform code review with merge requests
+## Presentation
 
-### GitLab is
+Public GitLab is a fork of the official [GitLab](https://github.com/gitlabhq/gitlabhq) software. This fork allows you to host public repositories as long as official software does NOT support it (e.g. for Open Source projects). With this fork, I'm trying to reproduce Github behavior.
 
-* powered by Ruby on Rails
-* completely free and open source (MIT license)
-* used by more than 10.000 organizations to keep their code secure
+So by public I mean:
 
-### Code status
+  * Allow anonymous users to browse your public repositories.
+  * Allow anonymous users to download your code (not only by `git clone`).
+  * Allow anonymous users to register and report issues on public projects.
 
-* [![build status](http://ci.gitlab.org/projects/1/status?ref=master)](http://ci.gitlab.org/projects/1?ref=master) ci.gitlab.org (master branch)
+With these features, GitLab can be a self-hosted Github competitor.
 
-* [![build status](https://secure.travis-ci.org/gitlabhq/gitlabhq.png)](https://travis-ci.org/gitlabhq/gitlabhq) travis-ci.org (master branch)
+You can browse a live example at http://git.hoa.ro (you won't be able to create projects).
 
-* [![Code Climate](https://codeclimate.com/github/gitlabhq/gitlabhq.png)](https://codeclimate.com/github/gitlabhq/gitlabhq)
+_Disclaimer_: I do not provide any support on GitLab itself. I only contribute to the _public_ part. Please refer to the [official documentation](https://github.com/gitlabhq/gitlabhq/blob/master/README.md) for any help on GitLab itself.
 
-* [![Dependency Status](https://gemnasium.com/gitlabhq/gitlabhq.png)](https://gemnasium.com/gitlabhq/gitlabhq)
+You should also be aware that **Public GitLab** only applies to the lastest [stable](https://github.com/ArthurHoaro/Public-GitLab/) release branch of GitLab. `master` branch on this repo have high chance to be broken.
 
-* [![Coverage Status](https://coveralls.io/repos/gitlabhq/gitlabhq/badge.png?branch=master)](https://coveralls.io/r/gitlabhq/gitlabhq)
+## Installation
 
-### Resources
+During the [official intallation](https://github.com/gitlabhq/gitlabhq/blob/5-0-stable/doc/install/installation.md) workflow, **Public GitLab** override part _"6. GitLab - Clone the Source"_. 
 
-* GitLab.org community site: [Homepage](http://gitlab.org) [Screenshots](http://gitlab.org/screenshots/) [Blog](http://blog.gitlab.org/) [Demo](http://demo.gitlabhq.com/users/sign_in)
+**Warning**: Remember that you _need_ to use the lastest **stable branch**, even if you want to dowload it from [zip file](https://github.com/ArthurHoaro/Public-GitLab/archive/5-0-stable.zip).
 
-* GitLab.com commercial services: [Homepage](http://www.gitlab.com/) [Subscription](http://www.gitlab.com/subscription/) [Consultancy](http://www.gitlab.com/consultancy/) [GitLab Cloud](http://www.gitlab.com/cloud/) [Blog](http://blog.gitlab.com/)
+### Clone the Source
 
-* GitLab CI: [Readme](https://github.com/gitlabhq/gitlab-ci/blob/master/README.md) of the GitLab open-source continuous integration server
+    # Clone GitLab repository
+    sudo -u git -H git clone https://github.com/ArthurHoaro/Public-GitLab.git gitlab
 
-### Requirements
+    # Go to gitlab dir
+    cd /home/git/gitlab
 
-* Ubuntu/Debian**
-* ruby 1.9.3
-* MySQL
-* git
-* gitlab-shell
-* redis
+    # Checkout to stable release
+    sudo -u git -H git checkout 5-0-stable
 
-** More details are in the [requirements doc](https://github.com/gitlabhq/gitlabhq/blob/master/doc/install/requirements.md)
+### Post installation
+At this point, every GitLab components are installed. You still can not access to GitLab yet though.
 
-### Installation
+The SQL script below will create a default `guest` user for anonymous access. It will also create a default team (`pgl_reporters`) which allows `reporter` permission to every new _future_ users, for all public projects.
 
-#### Official production installation
+#### PostgreSQL
+You have to patch GitLab your database with `pgl_script_postgres.sql`:
 
-Follow the installation guide for production server.
+    cd /home/git/gitlab/pgl
+    psql -h host -U user database < pgl_script_postgres.sql
 
-* [Installation guide for latest stable release (5.0)](https://github.com/gitlabhq/gitlabhq/blob/5-0-stable/doc/install/installation.md) - **Recommended**
+#### MySQL
+You have to patch GitLab your database with `pgl_script_mysql.sql`:
 
-* [Installation guide for the current master branch (5.1)](https://github.com/gitlabhq/gitlabhq/blob/master/doc/install/installation.md)
+    cd /home/git/gitlab/pgl
+    mysql -hhost -uuser -p
+    use database
+    source pgl_script_mysql.sql
 
+### Allow signup
 
-#### Official development installation
+In the file ~/gitlab/config/gitlab.yml, uncomment:
 
-If you want to contribute, please first read our [Contributing Guidelines](https://github.com/gitlabhq/gitlabhq/blob/master/CONTRIBUTING.md) and then we suggest you to use the Vagrant virtual machine project to get an environment working with all dependencies.
+    signup_enabled: true
 
-* [Vagrant virtual machine](https://github.com/gitlabhq/gitlab-vagrant-vm)
+Note: Keep in mind that if you do not allow signup, guest wouldn't be able to report issues. 
 
+If you do not want guest users to create projects on your GitLab installation, set `default_projects_limit: 0` in `config/gitlab.yaml`.
 
-#### Unsupported production installation
+### Restart GitLab
 
-* [GitLab recipes](https://github.com/gitlabhq/gitlab-recipes) for setup on different platforms
+Remember to restart GitLab after all these changes :
 
-* [Unofficial installation guides](https://github.com/gitlabhq/gitlab-public-wiki/wiki/Unofficial-Installation-Guides)
+    sudo /etc/init.d/gitlab restart
 
-* [BitNami one-click installers](http://bitnami.com/stack/gitlab)
+Then enjoy !
 
-* [TurnKey Linux virtual appliance](http://www.turnkeylinux.org/gitlab)
+## Reporting issues
 
+If you have issues with Public GitLab, you can report them with the [Github issues module](https://github.com/ArthurHoaro/Public-GitLab/issues). 
 
-### New versions and upgrading
+Please remberer to tell us which database you are using.
 
-Each month on the 22th a new version is released together with an upgrade guide.
+## License
 
-* [Upgrade guides](https://github.com/gitlabhq/gitlabhq/wiki)
+Public GitLab is provided and maintain by [Arthur Hoaro](http://hoa.ro).
 
-* [Changelog](https://github.com/gitlabhq/gitlabhq/blob/master/CHANGELOG)
+Public GitLab is distributed under the [same license](https://github.com/ArthurHoaro/Public-GitLab/blob/5-0-stable/LICENSE) as the original sofware.
 
-* Features that will be in the next release are listed on [the feedback and suggestions forum with the status "started"](http://feedback.gitlab.com/forums/176466-general/status/796456).
-
-
-### Run in production mode
-
-1. The Installation guide contains instructions on how to download an init script and run it automatically on boot. You can also start the init script manually:
-
-        sudo service gitlab start
-
-  or by directly calling the script
-
-        sudo /etc/init.d/gitlab start
-
-### Run in development mode
-
-Start it with [Foreman](https://github.com/ddollar/foreman)
-
-        bundle exec foreman start -p 3000
-
-  or start each component separately
-
-        bundle exec rails s
-        bundle exec rake sidekiq:start
-
-### Run the tests
-
-* Seed the database
-
-        bundle exec rake db:setup RAILS_ENV=test
-        bundle exec rake db:seed_fu RAILS_ENV=test
-
-* Run all tests
-
-        bundle exec rake gitlab:test
-
-* Rspec unit and functional tests
-
-        bundle exec rake spec
-
-* Spinach integration tests
-
-        bundle exec rake spinach
-
-
-### GitLab interfaces
-
-* [GitLab API](https://github.com/gitlabhq/gitlabhq/blob/master/doc/api/README.md)
-
-* [Rake tasks](https://github.com/gitlabhq/gitlabhq/tree/master/doc/raketasks)
-
-* [Directory structure](https://github.com/gitlabhq/gitlabhq/blob/master/doc/install/structure.md)
-
-* [Databases](https://github.com/gitlabhq/gitlabhq/blob/master/doc/install/databases.md)
-
-
-### Getting help
-
-* [Troubleshooting guide](https://github.com/gitlabhq/gitlab-public-wiki/wiki/Trouble-Shooting-Guide) contains solutions to common problems.
-
-* [Support forum](https://groups.google.com/forum/#!forum/gitlabhq) is the best place to ask questions. For example you can use it if you have questions about: permission denied errors, invisible repos, can't clone/pull/push or with web hooks that don't fire. Please search for similar issues before posting your own, there's a good chance somebody else had the same issue you have now and had it resolved. There are a lot of helpful GitLab users there who may be able to help you quickly. If your particular issue turns out to be a bug, it will find its way from there to a fix.
-
-* [Feedback and suggestions forum](http://gitlab.uservoice.com/forums/176466-general) is the place to propose and discuss new features for GitLab.
-
-* [Support subscription](http://www.gitlab.com/subscription/) connect you to the knowledge of GitLab experts that will resolve your issues and answer your questions.
-
-* [Consultancy](http://www.gitlab.com/consultancy/) allows you hire GitLab exports for installations, upgrades and customizations.
-
-* [Contributing guide](https://github.com/gitlabhq/gitlabhq/blob/master/CONTRIBUTING.md) describes how to submit pull requests and issues. Pull requests and issues not in line with the guidelines in this document will be closed without comment.
-
-
-### Getting in touch
-
-* [Core team](https://github.com/gitlabhq?tab=members)
-
-* [Contributors](https://github.com/gitlabhq/gitlabhq/graphs/contributors)
-
-* [Leader](https://github.com/randx)
-
-* [Contact page](http://gitlab.org/contact/)
+This fork is based on [cjdelisle](https://github.com/cjdelisle/) work, from his [original fork](https://github.com/cjdelisle/gitboria.com/commit/61db393bfd4fc75c5f046f01b01c7f114f601426).
