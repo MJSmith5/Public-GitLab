@@ -79,6 +79,13 @@ Remember to restart GitLab after all these changes :
 
 Then enjoy !
 
+
+## Upgrade
+
+> TODO
+
+  * Unicorn have been replaced
+
 ## Reporting issues
 
 If you have issues with Public GitLab, you can report them with the [Github issues module](https://github.com/ArthurHoaro/Public-GitLab/issues). 
